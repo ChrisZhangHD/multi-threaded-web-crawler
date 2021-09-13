@@ -21,10 +21,6 @@ class MyHTMLParser(HTMLParser):
                 self.insert_url_set(val)
 
     def handle_startendtag(self, tag, attrs):
-        # for key, val in attrs:
-        #     if "href" == key:
-        #         new_full_url = urlparse.urljoin(self.base_url, val)
-        #         self.url_set.add(new_full_url)
         for key, val in attrs:
             if "href" == key:
                 self.insert_url_set(val)
@@ -38,12 +34,6 @@ class MyHTMLParser(HTMLParser):
                 break
         if can_insert:
             self.url_set.add(new_full_url)
-
-    # def handle_endtag(self, tag):
-    #     print("Encountered an end tag :", tag)
-    #
-    # def handle_data(self, data):
-    #     print("Encountered some data  :", data)
 
 
 if __name__ == '__main__':

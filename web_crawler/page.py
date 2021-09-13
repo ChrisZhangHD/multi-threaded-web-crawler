@@ -1,4 +1,5 @@
 # (score, url, left_visited_set, all_site_count)
+import time
 from urllib.parse import urlparse
 
 
@@ -11,7 +12,7 @@ class Page:
         self.point_count = point_count
         self.score = 0
         self.update_score()
-        self.crawl_time = 0  # undefined
+        self.download_time = time.asctime(time.localtime(time.time()))
         self.depth = parent_depth + 1
         self.size = 0  # undefined
 
