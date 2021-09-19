@@ -1,8 +1,6 @@
 import urllib.parse as urlparse  # 用来拼接url
 from html.parser import HTMLParser
 
-import requestdata
-
 
 class MyHTMLParser(HTMLParser):
 
@@ -34,14 +32,3 @@ class MyHTMLParser(HTMLParser):
                 break
         if can_insert:
             self.url_set.add(new_full_url)
-
-
-if __name__ == '__main__':
-    # url = "https://www.runoob.com/python/python-reg-expressions.html"
-    url = "https://www.akc.org/dog-breeds/smallest-dog-breeds/"
-    res = requestdata.get_data_from_request(url)
-    # print(data)
-    parser = MyHTMLParser(url)
-    # parser.feed("<link href='www.baidu.com/html'/>")
-    parser.feed(res[0])
-    print(parser.url_set)

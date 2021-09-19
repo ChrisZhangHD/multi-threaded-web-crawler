@@ -9,7 +9,7 @@ from web_crawler import requestdata, htmlparser
 class CrawlerThread:
 
     def __init__(self):
-        self.executor = ThreadPoolExecutor(max_workers=30)
+        self.executor = ThreadPoolExecutor(max_workers=50)
         self.robot_map = {}
 
     def submit_task(self, cur_page):
@@ -26,10 +26,10 @@ class CrawlerThread:
         cur_html_data = requestdata.get_data_from_request(cur_link)
         if not cur_html_data:
             return
-        cur_page_size = str(len(cur_html_data)) + "Bytes"
-        result_sentence = str(cur_page.download_time) + " " + cur_link + " " + str(
-            cur_page.score) + " " + cur_page_size + " " + str(cur_page.depth)
-        print(result_sentence)
+        cur_page_size = len(cur_html_data)
+        result_sentence = "Time: %s; Page: %s; Score: %.3f; Size: %dB; Depth:%d" % \
+                          (cur_page.download_time, cur_link, cur_page.score, cur_page_size, cur_page.depth)
+        # print(result_sentence)
         parser = htmlparser.MyHTMLParser(cur_link)
         parser.feed(cur_html_data)
         return [parser.url_set, cur_page, result_sentence]

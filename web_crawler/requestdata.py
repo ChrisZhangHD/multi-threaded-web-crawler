@@ -7,7 +7,7 @@ from googlesearch import search
 
 def get_data_from_request(url):
     try:
-        timeout = 2
+        timeout = 1
         socket.setdefaulttimeout(timeout)
         req = request.Request(url)
         response = request.urlopen(req)
@@ -39,8 +39,3 @@ def search_from_google(keywords):
     for url in search(keywords, tld="co.in", num=12, stop=10, pause=2):
         seeds.add(url)
     return seeds
-
-
-if __name__ == "__main__":
-    url = "https://twitter.com/nyutandon/status/1436422494399963161?lang=bg"
-    get_data_from_request(url)

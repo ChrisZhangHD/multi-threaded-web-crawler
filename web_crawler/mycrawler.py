@@ -1,5 +1,7 @@
 import collections
+import datetime
 import heapq
+import logging
 from collections import defaultdict
 
 import crawlerthread
@@ -11,7 +13,6 @@ class MyCrawler:
 
     def __init__(self, result_num):
         self.result_num = result_num
-        self.result = []
         self.seeds = None
         self.pq = []
         self.visited_page_link_map = defaultdict(page.Page)
@@ -19,6 +20,7 @@ class MyCrawler:
         self.domain_map = defaultdict(list)
         self.thread_task = collections.deque()
         self.robot_map = {}
+        self.logger = self.logger_config("log.txt", log_name="crawler result")
 
     def init_seeds(self, query):
         self.seeds = requestdata.search_from_google(query)
@@ -43,14 +45,14 @@ class MyCrawler:
                 heapq.heapify(self.pq)
                 cur_page = heapq.heappop(self.pq)
                 self.thread_task.append(thread_executor.submit_task(cur_page))
-                self.result_num -= 1
 
     def finish_task(self, future):
         task_result = future.result()
         if not task_result:
             return
         next_url_set, cur_page, result_sentence = task_result
-        self.result.append(result_sentence)
+        self.result_num -= 1
+        self.logger.info(result_sentence)
         for next_url in next_url_set:
             if next_url in self.crawled_page_set:
                 continue
@@ -65,15 +67,28 @@ class MyCrawler:
                 self.visited_page_link_map[next_url] = next_page
                 heapq.heappush(self.pq, next_page)
 
+    def logger_config(self, log_path, log_name):
+        logger = logging.getLogger(log_name)
+        logger.setLevel(level=logging.DEBUG)
+        handler = logging.FileHandler(log_path, encoding="UTF-8")
+        handler.setLevel(level=logging.INFO)
+        console = logging.StreamHandler()
+        console.setLevel(level=logging.DEBUG)
+        logger.addHandler(handler)
+        logger.addHandler(console)
+        return logger
+
 
 if __name__ == '__main__':
+    startTime = datetime.datetime.now()
     query = "nyu tandon"
 
-    my_crawler = MyCrawler(10000)
+    my_crawler = MyCrawler(100)
     my_crawler.init_seeds(query)
 
     my_crawler.put_seeds_to_pq()
 
     my_crawler.process_pq()
 
-    # print(my_crawler.result)
+    endTime = datetime.datetime.now()
+    print((endTime - startTime).seconds)
