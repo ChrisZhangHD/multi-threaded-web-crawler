@@ -18,6 +18,7 @@ class MyCrawler:
         self.crawled_page_set = set()
         self.domain_map = defaultdict(list)
         self.thread_task = collections.deque()
+        self.robot_map = {}
 
     def init_seeds(self, query):
         self.seeds = requestdata.search_from_google(query)
@@ -66,9 +67,9 @@ class MyCrawler:
 
 
 if __name__ == '__main__':
-    query = "nyu tandon computer science"
+    query = "nyu tandon"
 
-    my_crawler = MyCrawler(100)
+    my_crawler = MyCrawler(10000)
     my_crawler.init_seeds(query)
 
     my_crawler.put_seeds_to_pq()
