@@ -3,7 +3,8 @@ import urllib.robotparser
 from concurrent.futures import ThreadPoolExecutor
 from urllib.error import URLError
 
-from web_crawler import requestdata, htmlparser
+import htmlparser
+import requestdata
 
 
 class CrawlerThread:

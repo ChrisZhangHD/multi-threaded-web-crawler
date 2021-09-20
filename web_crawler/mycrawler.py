@@ -80,8 +80,8 @@ class MyCrawler:
 
 
 if __name__ == '__main__':
+    query = input("input keywords: ")
     startTime = datetime.datetime.now()
-    query = "nyu tandon"
 
     my_crawler = MyCrawler(100)
     my_crawler.init_seeds(query)
