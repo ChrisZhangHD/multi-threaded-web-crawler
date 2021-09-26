@@ -10,7 +10,7 @@ import requestdata
 class CrawlerThread:
 
     def __init__(self):
-        self.executor = ThreadPoolExecutor(max_workers=50)
+        self.executor = ThreadPoolExecutor(max_workers=500)
         self.robot_map = {}
 
     def submit_task(self, cur_page):
@@ -24,13 +24,13 @@ class CrawlerThread:
         rp = self.get_robot_parser(cur_page.domain)
         if rp and not rp.can_fetch("*", cur_link):
             return
-        cur_html_data = requestdata.get_data_from_request(cur_link)
+        cur_html_data, status = requestdata.get_data_from_request(cur_link)
+        cur_page_size = len(cur_html_data) if cur_html_data else 0
+        cur_page.size = cur_page_size
+        result_sentence = "Time: %s; Page: %s; Code: %s; Score: %.3f; Size: %dB; Depth:%d" % \
+                          (cur_page.download_time, cur_link, status, cur_page.score, cur_page_size, cur_page.depth)
         if not cur_html_data:
-            return
-        cur_page_size = len(cur_html_data)
-        result_sentence = "Time: %s; Page: %s; Score: %.3f; Size: %dB; Depth:%d" % \
-                          (cur_page.download_time, cur_link, cur_page.score, cur_page_size, cur_page.depth)
-        # print(result_sentence)
+            return [result_sentence]
         parser = htmlparser.MyHTMLParser(cur_link)
         parser.feed(cur_html_data)
         return [parser.url_set, cur_page, result_sentence]
@@ -52,3 +52,10 @@ class CrawlerThread:
             return
         except UnicodeDecodeError as e:
             return
+        except ConnectionResetError as e:
+            return
+        except Exception:
+            return
+
+    def shutdown(self):
+        self.executor.shutdown(wait=False)

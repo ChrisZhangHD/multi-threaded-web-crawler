@@ -8,7 +8,7 @@ class MyHTMLParser(HTMLParser):
         super().__init__()
         self.base_url = str(base_url)
         self.url_set = set()
-        self.ignore_url_ends = ["index.htm", "index.html", "index.jsp", "main.html"]
+        self.ignore_url_ends = ["index.htm", "index.html", "index.jsp", "main.html", ".jpg", ".exe", ".pdf"]
 
     def error(self, message):
         pass

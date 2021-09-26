@@ -20,7 +20,9 @@ class MyCrawler:
         self.domain_map = defaultdict(list)
         self.thread_task = collections.deque()
         self.robot_map = {}
-        self.logger = self.logger_config("log.txt", log_name="crawler result")
+        self.logger = self.logger_config("log0.txt", log_name="crawler result")
+        self.total_size = 0
+        self.total_error_page = 0
 
     def init_seeds(self, query):
         self.seeds = requestdata.search_from_google(query)
@@ -34,24 +36,31 @@ class MyCrawler:
 
     def process_pq(self):
         thread_executor = crawlerthread.CrawlerThread()
-        self.thread_task.extend([thread_executor.submit_task(self.visited_page_link_map[seed]) for seed in self.seeds])
-        while len(self.thread_task) > 0 and self.result_num > 0:
-            while self.pq and self.result_num > 0:
-                cur_future = self.thread_task.popleft()
-                while len(self.thread_task) and not cur_future.done():
-                    self.thread_task.append(cur_future)
-                    cur_future = self.thread_task.popleft()
-                self.finish_task(cur_future)
+        while self.thread_task or self.pq:
+            if self.result_num == 0:
+                break
+            if self.pq:
                 heapq.heapify(self.pq)
                 cur_page = heapq.heappop(self.pq)
+                self.crawled_page_set.add(cur_page.page_link)
                 self.thread_task.append(thread_executor.submit_task(cur_page))
+            while len(self.thread_task) and self.thread_task[0].done():
+                if self.result_num == 0:
+                    break
+                self.finish_task(self.thread_task.popleft())
+        thread_executor.shutdown()
 
     def finish_task(self, future):
         task_result = future.result()
         if not task_result:
             return
-        next_url_set, cur_page, result_sentence = task_result
         self.result_num -= 1
+        if len(task_result) == 1:
+            self.total_error_page += 1
+            self.logger.info(task_result[0])
+            return
+        next_url_set, cur_page, result_sentence = task_result
+        self.total_size += cur_page.size
         self.logger.info(result_sentence)
         for next_url in next_url_set:
             if next_url in self.crawled_page_set:
@@ -81,14 +90,18 @@ class MyCrawler:
 
 if __name__ == '__main__':
     query = input("input keywords: ")
+    total_page = input("input total page you want to get: ")
+    total_page = int(total_page)
     startTime = datetime.datetime.now()
 
-    my_crawler = MyCrawler(100)
+    my_crawler = MyCrawler(total_page)
     my_crawler.init_seeds(query)
 
     my_crawler.put_seeds_to_pq()
-
     my_crawler.process_pq()
 
     endTime = datetime.datetime.now()
+    my_crawler.logger.info("Total Page: %d  Total Time: %ds  Total Size: %dB  Total Error Page: %d" %
+                           (total_page, (endTime - startTime).seconds, my_crawler.total_size,
+                            my_crawler.total_error_page))
     print((endTime - startTime).seconds)

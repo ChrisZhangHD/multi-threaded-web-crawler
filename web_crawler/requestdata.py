@@ -7,7 +7,7 @@ from googlesearch import search
 
 def get_data_from_request(url):
     try:
-        timeout = 1
+        timeout = 5
         socket.setdefaulttimeout(timeout)
         req = request.Request(url)
         response = request.urlopen(req)
@@ -17,21 +17,21 @@ def get_data_from_request(url):
         if "text/html" == content_type:
             html_data = response.read().decode('utf-8')
         response.close()
-        return html_data
+        return [html_data, "200"]
     except urllib.error.HTTPError as e:
         print(url + " Http Error Code: " + str(e.code))
-        return
+        return [None, str(e.code)]
     except urllib.error.URLError as e:
         print(url + " URL Error: " + str(e.reason))
-        return
+        return [None, "URL Error"]
     except socket.error:
         print(url + " socket time out ")
-        return
+        return [None, "socket time out"]
     except UnicodeDecodeError as e:
         print(url + " UnicodeDecodeError: " + str(e.reason))
-        return
-    except Exception:
-        return
+        return [None, "UnicodeDecodeError"]
+    except Exception as e:
+        return [None, "Other Exception"]
 
 
 def search_from_google(keywords):

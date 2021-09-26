@@ -13,6 +13,7 @@ class Page:
         self.download_time = time.asctime(time.localtime(time.time()))
         self.depth = parent_depth + 1
         self.size = 0
+        self.status = 0
 
     def __lt__(self, other):
         return self.score - other.score > 0
