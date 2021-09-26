@@ -1,0 +1,17 @@
+my crawler is a multi-thread crawler and uses priority queue to deal with the
+pages by their scores.
+process_pq() function combine multi-thread mechanism to pop the page by its score
+and deal with this certain page by multi-thread.
+get_data_from_request(url) function send http request and handle with kinds of
+exception and make sure our program normal.
+finish_task(self, future) function to get the result from multi-thread and put
+the new page into our priority queue and update the score of the pages in priority
+queue.
+
+I set a task queue to save the multi-thread task. I will go through this task
+queue and check if the task is done. If it is true, we will deal with this task,
+else I will insert this task into the tail of the task queue. I think it will
+increase the speed.
+
+Problems: I cannot include all types in my blacklist.
+          I do not deal with the occasion where different url point same page.
